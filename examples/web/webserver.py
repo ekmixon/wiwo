@@ -45,8 +45,7 @@ from api.access_points_per_channel import AccessPointsPerChannel
 from api.data_qos_data_frames_per_channel import DataQoSDataFramesPerChannel
 
 # API dictonary.
-api_dict = dict()
-api_dict['frames_per_channel'] = FramesPerChannel(1)
+api_dict = {'frames_per_channel': FramesPerChannel(1)}
 api_dict['traffic_encryption'] = TrafficEncryption(1)
 api_dict['access_points_per_channel'] = AccessPointsPerChannel(1)
 api_dict['data_qos_data_frames_per_channel'] = DataQoSDataFramesPerChannel(2)
@@ -60,12 +59,14 @@ class MyHandler(BaseHTTPRequestHandler):
     """
     
     def __init__(self, *args):
-        self.file_types = dict()
-        self.file_types['html'] = 'text/html'
-        self.file_types['css'] = 'text/css'
-        self.file_types['js'] = 'text/javascript'
-        self.file_types['png'] = 'image/png'
-        self.file_types['ico'] = 'image/ico'
+        self.file_types = {
+            'html': 'text/html',
+            'css': 'text/css',
+            'js': 'text/javascript',
+            'png': 'image/png',
+            'ico': 'image/ico',
+        }
+
         BaseHTTPRequestHandler.__init__(self, *args)
     
     def get_file(self, url):
@@ -92,15 +93,28 @@ class MyHandler(BaseHTTPRequestHandler):
         except KeyError:
             return None
      
-    def do_GET(self): 
+    def do_GET(self):
         """
         It handles all the HTTP GET request.
         """
         try:
-            if None != re.search('/api/*', self.path):
+            if re.search('/api/*', self.path) is None:
+                _path = self.path
+                if self.path == "/":
+                    _path = "/wiwo-traffic-analyzer.html"
+
+                content_type = self.get_content_type(_path)
+                if content_type is None:
+                    return
+
+                with open(curdir + sep + self.get_file(_path)) as f:
+                    self.send_response(200)
+                    self.send_header('Content-type', content_type)
+                    self.end_headers()
+                    self.wfile.write(f.read())
+            else:
                 api_name = self.path.split('/')[-1]
-                print api_name
-                
+                api_name = self.path.split('/')[-1]
                 try:
                     api = api_dict[api_name]
                 except KeyError:
@@ -108,35 +122,17 @@ class MyHandler(BaseHTTPRequestHandler):
                     self.send_header('Content-Type', 'application/json')
                     self.end_headers()
                     return
-                
+
                 resp = api.get_data()
-                print resp
-                
+                api_name = self.path.split('/')[-1]
                 self.send_response(200)
                 self.send_header('Content-type', "text/html")
                 self.end_headers()
                 self.wfile.write(resp)
-                return
-                
-            else:
-                _path = self.path
-                if self.path == "/":
-                    _path = "/wiwo-traffic-analyzer.html"
-                    
-                content_type = self.get_content_type(_path)
-                if content_type == None:
-                    return
-                    
-                f = open(curdir + sep + self.get_file(_path))
-                self.send_response(200)
-                self.send_header('Content-type', content_type)
-                self.end_headers()
-                self.wfile.write(f.read())
-                f.close()
-                return
+            return
 
         except IOError:
-            self.send_error(404,'File Not Found: %s' % self.get_file(_path))
+            self.send_error(404, f'File Not Found: {self.get_file(_path)}')
 
 
 # Wiwo manager wrapper.

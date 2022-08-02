@@ -355,27 +355,26 @@ def data_handler(manager, mac, frame):
     if not os.path.isdir(data_dir):
         os.mkdir(data_dir)
 
-    filename = os.path.join(data_dir,
-                            "%s.pcap" % interface.transform_mac_address_to_string_mac_address(mac).replace(":", "-"))
+    filename = os.path.join(
+        data_dir,
+        f'{interface.transform_mac_address_to_string_mac_address(mac).replace(":", "-")}.pcap',
+    )
+
 
     if not os.path.isfile(filename):
-        fd = open(filename, "wb")
-        fd.write("\xd4\xc3\xb2\xa1")  # Magic Signature
-        fd.write("\x02\x00\x04\x00")  # Version
-        fd.write("\x00\x00\x00\x00")  # GMT
-        fd.write("\x00\x00\x00\x00")  # GMT
-        fd.write("\xff\xff\x00\x00")  # Snaplen
-        fd.write("\x7f\x00\x00\x00")  # Data link
-        fd.close()
-
-    fd = open(filename, "ab")
-    fd.write("\x00\x00\x00\x00")
-    fd.write("\x00\x00\x00\x00")
-    fd.write(struct.pack("I", len(frame)))
-    fd.write(struct.pack("I", len(frame)))
-    fd.write(frame)
-
-    fd.close()
+        with open(filename, "wb") as fd:
+            fd.write("\xd4\xc3\xb2\xa1")  # Magic Signature
+            fd.write("\x02\x00\x04\x00")  # Version
+            fd.write("\x00\x00\x00\x00")  # GMT
+            fd.write("\x00\x00\x00\x00")  # GMT
+            fd.write("\xff\xff\x00\x00")  # Snaplen
+            fd.write("\x7f\x00\x00\x00")  # Data link
+    with open(filename, "ab") as fd:
+        fd.write("\x00\x00\x00\x00")
+        fd.write("\x00\x00\x00\x00")
+        fd.write(struct.pack("I", len(frame)))
+        fd.write(struct.pack("I", len(frame)))
+        fd.write(frame)
 
 
 def event_handler(event):

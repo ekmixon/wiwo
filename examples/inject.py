@@ -139,12 +139,9 @@ class Injector(object):
             return
 
         station_address = management_frame.get_source_address()
-        print "Station: %s" % ":".join(map(lambda i: "%02X" % i, station_address))
-        print "SSID: %s" % ssid
-
-        frame = str()
-        # Radiotap
-        frame += "\x00\x00"  # Version
+        decoder = RadioTapDecoder()
+        decoder = RadioTapDecoder()
+        frame = str() + "\x00\x00"
         frame += "\x0b\x00"  # Header Length
         frame += "\x04\x0c\x00\x00"  # Presence Flags
         frame += "\x6c"  # Rate

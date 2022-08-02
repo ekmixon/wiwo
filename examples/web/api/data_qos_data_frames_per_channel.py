@@ -37,11 +37,11 @@ class DataQoSDataFramesPerChannel(APIBase):
 
         if d11.get_type() != dot11.Dot11Types.DOT11_TYPE_DATA:
             return 
-            
+
         channel = helpers.get_channel_from_frame(frame)
         if channel == -1:
             return
-           
+
         if not d11.is_QoS_frame():
             self.add(channel, 0, 1)
         else:    

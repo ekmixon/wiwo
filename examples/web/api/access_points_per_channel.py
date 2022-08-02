@@ -29,7 +29,7 @@ import helpers
 class AccessPointsPerChannel(APIBase):
     def __init__(self, number_of_values):
         APIBase.__init__(self, number_of_values)
-        self.bssids = dict()
+        self.bssids = {}
         
     def process(self,  mac, frame):
         """
@@ -41,7 +41,7 @@ class AccessPointsPerChannel(APIBase):
         d11 = dot11.Dot11(buf)
         if d11.get_type() != dot11.Dot11Types.DOT11_TYPE_MANAGEMENT:
             return
-            
+
         if d11.get_subtype() != dot11.Dot11Types().DOT11_SUBTYPE_MANAGEMENT_BEACON:
             return
 
@@ -49,7 +49,7 @@ class AccessPointsPerChannel(APIBase):
         mgt = dot11.Dot11ManagementFrame(buf)
         bssid = mgt.get_bssid()
         bssid_str = bssid.tostring()
-        
+
         # Check if the access point was already counted.
         if self.bssids.has_key(bssid_str):
             return
@@ -59,5 +59,5 @@ class AccessPointsPerChannel(APIBase):
         channel = helpers.get_channel_from_frame(frame)
         if channel == -1:
             return
-           
+
         self.add(channel, 0, 1)

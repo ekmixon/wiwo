@@ -44,11 +44,9 @@ class APIBase:
         """
         if value_index >= self.number_of_values:
             return
-        
+
         if not self.dict.has_key(key):
-            values = []
-            for i in range(self.number_of_values):
-                values.append(0)
+            values = [0 for _ in range(self.number_of_values)]
             self.dict[key] = values
 
         values = self.dict[key]

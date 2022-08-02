@@ -41,7 +41,7 @@ class WiWoDataFrameHandler(Process):
 
     def __init__(self, manager, iface_name, data_handler):
         Process.__init__(self)
-        self.data_fragments = dict()
+        self.data_fragments = {}
         self.manager = manager
         self.iface_name = iface_name
         self.data_handler = data_handler
@@ -51,8 +51,11 @@ class WiWoDataFrameHandler(Process):
         l = Lock()
         l.acquire()
         pd = pcapy.open_live(self.iface_name, ethernet.ETHERNET_MTU, 0, 100)
-        pcap_filter = "ether proto %s" % hex(frames.WiwoFrame.ethertype) \
-                      + " and (ether[14:1] = 0x07 or ether[14:1] = 0x08)"
+        pcap_filter = (
+            f"ether proto {hex(frames.WiwoFrame.ethertype)}"
+            + " and (ether[14:1] = 0x07 or ether[14:1] = 0x08)"
+        )
+
         pd.setfilter(pcap_filter)
         l.release()
         pd.loop(-1, self.frame_handler)
@@ -74,8 +77,8 @@ class WiWoDataFrameHandler(Process):
         elif wf.get_type() == frames.WiwoDataFragmentFrame.frametype:
             wdf = frames.WiwoDataFragmentFrame(wf.get_packet()[wf.get_header_size():])
 
-            if not(src in self.data_fragments):
-                self.data_fragments[src] = list()
+            if src not in self.data_fragments:
+                self.data_fragments[src] = []
 
             self.data_fragments[src].append(wdf.get_data_as_string())
 
@@ -103,10 +106,12 @@ class WiWoManagementFrameHandler(Process):
         l.acquire()
         pd = pcapy.open_live(self.iface_name, ethernet.ETHERNET_MTU, 0, 100)
         iface_mac_addr = interface.get_string_mac_address(self.iface_name)
-        pcap_filter = "ether dst " \
-                      + iface_mac_addr \
-                      + " and ether proto %s " % hex(frames.WiwoFrame.ethertype) \
-                      + "and not (ether[14:1] = 0x07 or ether[14:1] = 0x08)"
+        pcap_filter = (
+            "ether dst "
+            + iface_mac_addr
+            + f" and ether proto {hex(frames.WiwoFrame.ethertype)} "
+        ) + "and not (ether[14:1] = 0x07 or ether[14:1] = 0x08)"
+
         pd.setfilter(pcap_filter)
         l.release()
         pd.loop(-1, self.frame_handler)

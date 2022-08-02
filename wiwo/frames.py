@@ -111,7 +111,7 @@ class WiwoInfoResponseFrame(ProtocolPacket):
             self.load_packet(buff)
 
     def get_interfaces(self):
-        interfaces = list()
+        interfaces = []
 
         buff = self.body.get_bytes()
 
@@ -503,7 +503,7 @@ class WiwoErrorFrame(ProtocolPacket):
     def __init__(self, buff=None):
         header_size = 0
         tail_size = 0
-            
+
         ProtocolPacket.__init__(self, header_size, tail_size)
         if buff:
             self.load_packet(buff)

@@ -79,8 +79,7 @@ class Manager:
         """
         cmd = {'command': 'get_workers'}
         self.command_queue.put(cmd)
-        worker_list = self.command_response_queue.get()
-        return worker_list
+        return self.command_response_queue.get()
 
     def announce_to_worker(self, dst="\xff\xff\xff\xff\xff\xff"):
         """
@@ -123,5 +122,4 @@ class Manager:
         """
         cmd = {'command': 'get_frame_log', 'mac':mac}
         self.command_queue.put(cmd)
-        frame_log = self.command_response_queue.get()
-        return frame_log
+        return self.command_response_queue.get()

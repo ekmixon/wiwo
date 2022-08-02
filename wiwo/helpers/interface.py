@@ -71,10 +71,9 @@ def linux_get_string_mac_address(iface_name):
     """
     It returns the MAC from an interface in Linux platforms as a string.
     """
-    address_path = '/sys/class/net/%s/address' % iface_name
-    fd = open(address_path, 'r')
-    mac_address = fd.read()
-    fd.close()
+    address_path = f'/sys/class/net/{iface_name}/address'
+    with open(address_path, 'r') as fd:
+        mac_address = fd.read()
     return mac_address.strip()
 
 

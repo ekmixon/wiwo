@@ -53,7 +53,7 @@ class Interface(object):
         self.__channels = channels
         self.__channel = channel
         self.__status = Interface.INTERFACE_STOPPED
-        self.__monitors = list()
+        self.__monitors = []
 
     def get_name(self):
         return self.__name
@@ -139,11 +139,11 @@ class Worker(object):
 
     def __init__(self, mac):
         self.__mac = mac
-        self.__interfaces_list = list()
+        self.__interfaces_list = []
         self.__communication_status = Worker.COMMUNICATION_IDLE
         self.__last_frame_sent = None
         self.__frame_queue = deque()
-        self.__frame_log = list()
+        self.__frame_log = []
 
     def get_mac(self):
         return self.__mac
@@ -152,10 +152,14 @@ class Worker(object):
         return self.__interfaces_list
 
     def get_interface(self, iface_name):
-        for interface in self.__interfaces_list:
-            if interface.get_name() == iface_name:
-                return interface
-        return None
+        return next(
+            (
+                interface
+                for interface in self.__interfaces_list
+                if interface.get_name() == iface_name
+            ),
+            None,
+        )
 
     def add_interface(self, interface):
         self.__interfaces_list.append(interface)
@@ -177,14 +181,14 @@ class Worker(object):
         self.__communication_status = Worker.COMMUNICATION_WAITING
         self.__last_frame_sent = frame
         frame = Sender.send(frame, iface_name)
-        log_line = "- [SENT]: %s" % repr(frame)
+        log_line = f"- [SENT]: {repr(frame)}"
         self.__frame_log.append(log_line)
         return frame
 
     def _queue(self, frame):
         self.__frame_queue.append(frame)
         frame = frame.get_packet()
-        log_line = "- [QUEUED]: %s" % repr(frame)
+        log_line = f"- [QUEUED]: {repr(frame)}"
         self.__frame_log.append(log_line)
         return ""
 
@@ -209,7 +213,7 @@ class Worker(object):
             return self._queue(frame)
 
     def get_worker_info(self):
-        interfaces_list = list()
+        interfaces_list = []
         for interface in self.__interfaces_list:
             iface_info = InterfaceInformation(interface.get_name(),
                                               interface.get_protocol(),
@@ -223,7 +227,7 @@ class Worker(object):
     def process_ctrl_and_mgnt_frame_received(self, e, iface_name):
         w = e.child()
 
-        log_line = "- [RECEIVED]: %s" % repr(e.get_packet())
+        log_line = f"- [RECEIVED]: {repr(e.get_packet())}"
         self.__frame_log.append(log_line)
 
         if w.get_type() == frames.WiwoAckFrame.frametype:

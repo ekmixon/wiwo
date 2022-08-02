@@ -29,11 +29,11 @@ def get_channel_from_frame(frame):
     """
     rt = dot11.RadioTap(frame)
     channel_pair = rt.get_channel()
-    if channel_pair == None:
+    if channel_pair is None:
         return -1
-    
+
     freq = channel_pair[0]
-    
+
     try:
         ch = dot11.frequency[freq]
     except KeyError:

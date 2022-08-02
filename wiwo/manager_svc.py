@@ -55,7 +55,7 @@ class ManagerSvc(Process):
 
         self.__event_handler = event_handler
 
-        self.__worker_dict = dict()
+        self.__worker_dict = {}
 
     def run(self):
         """
@@ -81,8 +81,7 @@ class ManagerSvc(Process):
         """
         Method that process commands from a Manager instance.
         """
-        cmd = self.__get_command()
-        if cmd:
+        if cmd := self.__get_command():
             if cmd['command'] == 'get_workers':
                 self.get_workers()
             elif cmd['command'] == 'announce':
@@ -114,8 +113,7 @@ class ManagerSvc(Process):
         """
         Method that process management frame from a WiWo Worker.
         """
-        mgnt_frame = self.__get_mgnt_frame()
-        if mgnt_frame:
+        if mgnt_frame := self.__get_mgnt_frame():
             self.__management_frame_handler(mgnt_frame)
 
     def __send_frame(self, dst, frame):
@@ -199,7 +197,7 @@ class ManagerSvc(Process):
         """
         Puts workers information dictionary in the __command_response_queue for the Manager to get.
         """
-        worker_list = list()
+        worker_list = []
         for worker_mac_addr in self.__worker_dict.keys():
             worker = self.__worker_dict[worker_mac_addr]
             worker_list.append(worker.get_worker_info())
@@ -302,14 +300,7 @@ class ManagerSvc(Process):
         wiwo_frame = frames.WiwoFrame(wiwo_frame_buffer)
         ethernet_frame.contains(wiwo_frame)
 
-        if not (ether_src_addr in self.__worker_dict.keys()):
-            if wiwo_frame.get_type() == frames.WiwoAckFrame.frametype:  # We assume it's a ACK from an Announce
-                worker = Worker(ether_src_addr)
-                self.__worker_dict[ether_src_addr] = worker
-                wiwo_req_info_frame_buffer = self.__create_wiwo_request_info_frame(ether_src_addr, ether_dst_addr)
-                worker.send(wiwo_req_info_frame_buffer, self.__iface_name)
-                self.__event_handler(WiwoEvent(ether_src_addr, WiwoEvent.WorkerAdded))
-        else:
+        if ether_src_addr in self.__worker_dict.keys():
             if wiwo_frame.get_type() == frames.WiwoErrorFrame.frametype:
                 worker = self.__worker_dict[ether_src_addr]
                 worker.update_after_error()
@@ -327,3 +318,10 @@ class ManagerSvc(Process):
                     self.__event_handler(WiwoEvent(ether_src_addr, WiwoEvent.DataInjected))
                 else:
                     self.__event_handler(WiwoEvent(ether_src_addr, WiwoEvent.WorkerUpdated))
+
+        elif wiwo_frame.get_type() == frames.WiwoAckFrame.frametype:  # We assume it's a ACK from an Announce
+            worker = Worker(ether_src_addr)
+            self.__worker_dict[ether_src_addr] = worker
+            wiwo_req_info_frame_buffer = self.__create_wiwo_request_info_frame(ether_src_addr, ether_dst_addr)
+            worker.send(wiwo_req_info_frame_buffer, self.__iface_name)
+            self.__event_handler(WiwoEvent(ether_src_addr, WiwoEvent.WorkerAdded))

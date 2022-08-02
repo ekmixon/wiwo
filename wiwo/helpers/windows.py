@@ -207,7 +207,7 @@ def GetAdaptersAddresses():
                          ctypes.POINTER(IP_ADAPTER_ADDRESSES),
                          ctypes.POINTER(wintypes.ULONG)]
     func_ref.restype = wintypes.ULONG
-    
+
     family = AF_UNSPEC
     flags = 0
     reserved = None
@@ -216,7 +216,7 @@ def GetAdaptersAddresses():
     buff = ctypes.create_string_buffer(size_pointer.value)
     adapter_addresses = ctypes.cast(buff, ctypes.POINTER(IP_ADAPTER_ADDRESSES))
     result = func_ref(family, flags, reserved, adapter_addresses, size_pointer)
-    
+
     if result == ERROR_ADDRESS_NOT_ASSOCIATED:
         raise Exception("An address has not yet been associated with the network"
                         " endpoint. DHCP lease information was available.")
@@ -237,7 +237,7 @@ def GetAdaptersAddresses():
                         " the operation.")
     elif result == ERROR_NO_DATA:
         raise Exception("No addresses were found for the requested parameters.")
-    
+
     return adapter_addresses
 
 
@@ -318,14 +318,16 @@ def getNetworkInterfacesInfo():
     """
         This function returns a dictionary that contains all the network interfaces of the system.
     """
-    interfaces = dict()
+    interfaces = {}
     adapters = GetAdaptersAddresses()
     adapter = adapters.contents
     while True:
-        interfaces[adapter.AdapterName] = dict()
-        mac_address_lst = list()
-        for idx in range(0, adapter.PhysicalAddressLength):
-            mac_address_lst.append("%02X" % adapter.PhysicalAddress[idx])
+        interfaces[adapter.AdapterName] = {}
+        mac_address_lst = [
+            "%02X" % adapter.PhysicalAddress[idx]
+            for idx in range(adapter.PhysicalAddressLength)
+        ]
+
         interfaces[adapter.AdapterName]['description'] = adapter.Description
         interfaces[adapter.AdapterName]['friendly name'] = adapter.FriendlyName
         if mac_address_lst:

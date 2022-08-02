@@ -153,14 +153,20 @@ class WiwoInfoResponseFrameTests(unittest.TestCase):
                 "channels": "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e",
                 "channel": "\x01"}
 
-        frame_buffer = "\x00\x11\x22\x33\x44\x55" \
-                       "\x00\xde\xad\xbe\xef\x00" \
-                       "\xfa\xfa" \
-                       + chr(WiwoInfoResponseFrame.frametype) \
-                       + "%s%s" % (struct.pack("B", len(info["iface"])), info["iface"]) \
-                       + "%s%s" % (struct.pack("B", len(info["protocol"])), info["protocol"]) \
-                       + "%s%s" % (struct.pack("B", len(info["channels"])), info["channels"]) \
-                       + "%s" % info["channel"]
+        frame_buffer = (
+            (
+                (
+                    "\x00\x11\x22\x33\x44\x55"
+                    "\x00\xde\xad\xbe\xef\x00"
+                    "\xfa\xfa"
+                    + chr(WiwoInfoResponseFrame.frametype)
+                    + f'{struct.pack("B", len(info["iface"]))}{info["iface"]}'
+                )
+                + f'{struct.pack("B", len(info["protocol"]))}{info["protocol"]}'
+            )
+            + f'{struct.pack("B", len(info["channels"]))}{info["channels"]}'
+        ) + f'{info["channel"]}'
+
         eth = Ethernet(frame_buffer)
         data = frame_buffer[eth.get_header_size():]
         wf = WiwoFrame(data)
@@ -190,18 +196,32 @@ class WiwoInfoResponseFrameTests(unittest.TestCase):
                   "channels": "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e",
                   "channel": "\x01"}
 
-        frame_buffer = "\x00\x11\x22\x33\x44\x55" \
-                       "\x00\xde\xad\xbe\xef\x00" \
-                       "\xfa\xfa" \
-                       + chr(WiwoInfoResponseFrame.frametype) \
-                       + "%s%s" % (struct.pack("B", len(info_1["iface"])), info_1["iface"]) \
-                       + "%s%s" % (struct.pack("B", len(info_1["protocol"])), info_1["protocol"]) \
-                       + "%s%s" % (struct.pack("B", len(info_1["channels"])), info_1["channels"]) \
-                       + "%s" % info_1["channel"] \
-                       + "%s%s" % (struct.pack("B", len(info_2["iface"])), info_2["iface"]) \
-                       + "%s%s" % (struct.pack("B", len(info_2["protocol"])), info_2["protocol"]) \
-                       + "%s%s" % (struct.pack("B", len(info_2["channels"])), info_2["channels"]) \
-                       + "%s" % info_2["channel"]
+        frame_buffer = (
+            (
+                (
+                    (
+                        (
+                            (
+                                (
+                                    "\x00\x11\x22\x33\x44\x55"
+                                    "\x00\xde\xad\xbe\xef\x00"
+                                    "\xfa\xfa"
+                                    + chr(WiwoInfoResponseFrame.frametype)
+                                    + f'{struct.pack("B", len(info_1["iface"]))}{info_1["iface"]}'
+                                )
+                                + f'{struct.pack("B", len(info_1["protocol"]))}{info_1["protocol"]}'
+                            )
+                            + f'{struct.pack("B", len(info_1["channels"]))}{info_1["channels"]}'
+                        )
+                        + f'{info_1["channel"]}'
+                    )
+                    + f'{struct.pack("B", len(info_2["iface"]))}{info_2["iface"]}'
+                )
+                + f'{struct.pack("B", len(info_2["protocol"]))}{info_2["protocol"]}'
+            )
+            + f'{struct.pack("B", len(info_2["channels"]))}{info_2["channels"]}'
+        ) + f'{info_2["channel"]}'
+
         eth = Ethernet(frame_buffer)
         data = frame_buffer[eth.get_header_size():]
         wf = WiwoFrame(data)
@@ -231,14 +251,20 @@ class WiwoInfoResponseFrameTests(unittest.TestCase):
                 "channels": "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e",
                 "channel": "\x01"}
 
-        frame_buffer = "\x00\x11\x22\x33\x44\x55" \
-                       "\x00\xde\xad\xbe\xef\x00" \
-                       "\xfa\xfa" \
-                       + chr(WiwoInfoResponseFrame.frametype) \
-                       + "%s%s" % (struct.pack("B", len(info["iface"])), info["iface"]) \
-                       + "%s%s" % (struct.pack("B", len(info["protocol"])), info["protocol"]) \
-                       + "%s%s" % (struct.pack("B", len(info["channels"])), info["channels"]) \
-                       + "%s" % info["channel"]
+        frame_buffer = (
+            (
+                (
+                    "\x00\x11\x22\x33\x44\x55"
+                    "\x00\xde\xad\xbe\xef\x00"
+                    "\xfa\xfa"
+                    + chr(WiwoInfoResponseFrame.frametype)
+                    + f'{struct.pack("B", len(info["iface"]))}{info["iface"]}'
+                )
+                + f'{struct.pack("B", len(info["protocol"]))}{info["protocol"]}'
+            )
+            + f'{struct.pack("B", len(info["channels"]))}{info["channels"]}'
+        ) + f'{info["channel"]}'
+
         eth = Ethernet(frame_buffer)
         data = frame_buffer[eth.get_header_size():]
         wf = WiwoFrame(data)
@@ -263,12 +289,14 @@ class WiwoSetChannelFrameTests(unittest.TestCase):
         frame buffer.
         """
         info = {"iface": "wlan0", "channel": 1}
-        frame_buffer = "\x00\x11\x22\x33\x44\x55" \
-                       "\x00\xde\xad\xbe\xef\x00" \
-                       "\xfa\xfa" \
-                       + chr(WiwoSetChannelFrame.frametype) \
-                       + "%s%s" % (struct.pack("B", len(info["iface"])), info["iface"]) \
-                       + "%s" % struct.pack("B", info["channel"])
+        frame_buffer = (
+            "\x00\x11\x22\x33\x44\x55"
+            "\x00\xde\xad\xbe\xef\x00"
+            "\xfa\xfa"
+            + chr(WiwoSetChannelFrame.frametype)
+            + f'{struct.pack("B", len(info["iface"]))}{info["iface"]}'
+        ) + f'{struct.pack("B", info["channel"])}'
+
         eth = Ethernet(frame_buffer)
         data = frame_buffer[eth.get_header_size():]
         wf = WiwoFrame(data)
@@ -284,12 +312,14 @@ class WiwoSetChannelFrameTests(unittest.TestCase):
         the frame buffer.
         """
         info = {"iface": "wlan0", "channel": 1}
-        frame_buffer = "\x00\x11\x22\x33\x44\x55" \
-                       "\x00\xde\xad\xbe\xef\x00" \
-                       "\xfa\xfa" \
-                       + chr(WiwoSetChannelFrame.frametype) \
-                       + "%s%s" % (struct.pack("B", len(info["iface"])), info["iface"]) \
-                       + "%s" % struct.pack("B", info["channel"])
+        frame_buffer = (
+            "\x00\x11\x22\x33\x44\x55"
+            "\x00\xde\xad\xbe\xef\x00"
+            "\xfa\xfa"
+            + chr(WiwoSetChannelFrame.frametype)
+            + f'{struct.pack("B", len(info["iface"]))}{info["iface"]}'
+        ) + f'{struct.pack("B", info["channel"])}'
+
         eth = Ethernet(frame_buffer)
         data = frame_buffer[eth.get_header_size():]
         wf = WiwoFrame(data)
@@ -308,12 +338,14 @@ class WiwoStartFrameTests(unittest.TestCase):
         the frame buffer.
         """
         info = {"iface": "wlan0", "filter": "ip and (tcp port 80 or tcp port 443)"}
-        frame_buffer = "\x00\x11\x22\x33\x44\x55" \
-                       "\x00\xde\xad\xbe\xef\x00" \
-                       "\xfa\xfa" \
-                       + chr(WiwoStartFrame.frametype) \
-                       + "%s%s" % (struct.pack("B", len(info["iface"])), info["iface"]) \
-                       + "%s%s" % (struct.pack("!H", len(info["filter"])), info["filter"])
+        frame_buffer = (
+            "\x00\x11\x22\x33\x44\x55"
+            "\x00\xde\xad\xbe\xef\x00"
+            "\xfa\xfa"
+            + chr(WiwoStartFrame.frametype)
+            + f'{struct.pack("B", len(info["iface"]))}{info["iface"]}'
+        ) + f'{struct.pack("!H", len(info["filter"]))}{info["filter"]}'
+
         eth = Ethernet(frame_buffer)
         data = frame_buffer[eth.get_header_size():]
         wf = WiwoFrame(data)
@@ -330,12 +362,14 @@ class WiwoStartFrameTests(unittest.TestCase):
         on the frame buffer.
         """
         info = {"iface": "wlan0", "filter": "ip and (tcp port 80 or tcp port 443)"}
-        frame_buffer = "\x00\x11\x22\x33\x44\x55" \
-                       "\x00\xde\xad\xbe\xef\x00" \
-                       "\xfa\xfa" \
-                       + chr(WiwoStartFrame.frametype) \
-                       + "%s%s" % (struct.pack("B", len(info["iface"])), info["iface"]) \
-                       + "%s%s" % (struct.pack("!H", len(info["filter"])), info["filter"])
+        frame_buffer = (
+            "\x00\x11\x22\x33\x44\x55"
+            "\x00\xde\xad\xbe\xef\x00"
+            "\xfa\xfa"
+            + chr(WiwoStartFrame.frametype)
+            + f'{struct.pack("B", len(info["iface"]))}{info["iface"]}'
+        ) + f'{struct.pack("!H", len(info["filter"]))}{info["filter"]}'
+
         eth = Ethernet(frame_buffer)
         data = frame_buffer[eth.get_header_size():]
         wf = WiwoFrame(data)
@@ -435,12 +469,14 @@ class WiwoDataInjectFrameTests(unittest.TestCase):
         """
         iface = "wlan0"
         frame_data = "\xff" * 1400
-        frame_buffer = "\x00\x11\x22\x33\x44\x55" \
-                       "\x00\xde\xad\xbe\xef\x00" \
-                       "\xfa\xfa" \
-                       + chr(WiwoDataInjectFrame.frametype) \
-                       + "%s%s" % (struct.pack("B", len(iface)), iface) \
-                       + frame_data
+        frame_buffer = (
+            "\x00\x11\x22\x33\x44\x55"
+            "\x00\xde\xad\xbe\xef\x00"
+            "\xfa\xfa"
+            + chr(WiwoDataInjectFrame.frametype)
+            + f'{struct.pack("B", len(iface))}{iface}'
+        ) + frame_data
+
         eth = Ethernet(frame_buffer)
         data = frame_buffer[eth.get_header_size():]
         wf = WiwoFrame(data)
@@ -456,12 +492,14 @@ class WiwoDataInjectFrameTests(unittest.TestCase):
         """
         iface = "wlan0"
         frame_data = "\xff" * 1400
-        frame_buffer = "\x00\x11\x22\x33\x44\x55" \
-                       "\x00\xde\xad\xbe\xef\x00" \
-                       "\xfa\xfa" \
-                       + chr(WiwoDataInjectFrame.frametype) \
-                       + "%s%s" % (struct.pack("B", len(iface)), iface) \
-                       + frame_data
+        frame_buffer = (
+            "\x00\x11\x22\x33\x44\x55"
+            "\x00\xde\xad\xbe\xef\x00"
+            "\xfa\xfa"
+            + chr(WiwoDataInjectFrame.frametype)
+            + f'{struct.pack("B", len(iface))}{iface}'
+        ) + frame_data
+
         eth = Ethernet(frame_buffer)
         data = frame_buffer[eth.get_header_size():]
         wf = WiwoFrame(data)
